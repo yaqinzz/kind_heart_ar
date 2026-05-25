@@ -38,6 +38,36 @@ export default function DecisionClient() {
     tryPlay();
   }, [videoSrc]);
 
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        video.pause();
+      }
+    };
+
+    const handlePageHide = () => {
+      video.pause();
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("pagehide", handlePageHide);
+    window.addEventListener("beforeunload", handlePageHide);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("pagehide", handlePageHide);
+      window.removeEventListener("beforeunload", handlePageHide);
+      video.pause();
+      video.removeAttribute("src");
+      video.load();
+    };
+  }, [videoSrc]);
+
   const handleEnableAudio = async () => {
     const video = videoRef.current;
     if (!video) {

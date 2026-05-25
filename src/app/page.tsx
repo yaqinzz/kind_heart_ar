@@ -1,19 +1,41 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import jsQR from "jsqr";
+
+const QR_TARGET = "video_1";
+const DECISION_ROUTE = "/decision";
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const scanRequestRef = useRef<number | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
+  const router = useRouter();
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+  };
 
   useEffect(() => {
-    let stream: MediaStream | null = null;
+    let isMounted = true;
 
     const startCamera = async () => {
       try {
         // Meminta akses kamera belakang (environment) khusus untuk AR
-        stream = await navigator.mediaDevices.getUserMedia({
+        const stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: "environment" },
         });
+        if (!isMounted) {
+          stream.getTracks().forEach((track) => track.stop());
+          return;
+        }
+        streamRef.current = stream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
@@ -25,11 +47,81 @@ export default function Home() {
     startCamera();
 
     return () => {
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
-      }
+      isMounted = false;
+      stopCamera();
     };
   }, []);
+
+  useEffect(() => {
+    if (!isScanning) {
+      if (scanRequestRef.current !== null) {
+        cancelAnimationFrame(scanRequestRef.current);
+        scanRequestRef.current = null;
+      }
+      return;
+    }
+
+    const scanFrame = () => {
+      scanRequestRef.current = null;
+
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      if (!video || !canvas) {
+        scanRequestRef.current = requestAnimationFrame(scanFrame);
+        return;
+      }
+
+      if (video.readyState < 2) {
+        scanRequestRef.current = requestAnimationFrame(scanFrame);
+        return;
+      }
+
+      const width = video.videoWidth;
+      const height = video.videoHeight;
+      if (!width || !height) {
+        scanRequestRef.current = requestAnimationFrame(scanFrame);
+        return;
+      }
+
+      if (canvas.width !== width) {
+        canvas.width = width;
+      }
+      if (canvas.height !== height) {
+        canvas.height = height;
+      }
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        scanRequestRef.current = requestAnimationFrame(scanFrame);
+        return;
+      }
+
+      ctx.drawImage(video, 0, 0, width, height);
+      const imageData = ctx.getImageData(0, 0, width, height);
+      const result = jsQR(imageData.data, width, height);
+
+      if (result?.data) {
+        const data = result.data.trim();
+        if (data === QR_TARGET) {
+          setIsScanning(false);
+          stopCamera();
+          router.push(`${DECISION_ROUTE}?video=${encodeURIComponent(data)}`);
+          return;
+        }
+      }
+
+      scanRequestRef.current = requestAnimationFrame(scanFrame);
+    };
+
+    scanRequestRef.current = requestAnimationFrame(scanFrame);
+
+    return () => {
+      if (scanRequestRef.current !== null) {
+        cancelAnimationFrame(scanRequestRef.current);
+        scanRequestRef.current = null;
+      }
+    };
+  }, [isScanning, router]);
 
   return (
     <>
@@ -82,6 +174,7 @@ export default function Home() {
             muted
             className="absolute inset-0 w-full h-full object-cover z-0"
           />
+          <canvas ref={canvasRef} className="hidden" aria-hidden="true" />
 
           <div className="absolute inset-0 flex items-center justify-center z-10">
             <span
@@ -105,14 +198,19 @@ export default function Home() {
 
         {/* Bottom Actions */}
         <div className="fixed bottom-24 w-full px-margin-mobile flex justify-center z-10">
-          <button className="bg-secondary-container text-on-secondary-container font-headline-lg-mobile text-headline-lg-mobile py-4 px-12 rounded-lg chunky-button-shadow chunky-button-active flex items-center gap-3 transition-all hover:brightness-105 active:brightness-95 cursor-pointer">
+          <button
+            className="bg-secondary-container text-on-secondary-container font-headline-lg-mobile text-headline-lg-mobile py-4 px-12 rounded-lg chunky-button-shadow chunky-button-active flex items-center gap-3 transition-all hover:brightness-105 active:brightness-95 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+            type="button"
+            onClick={() => setIsScanning(true)}
+            disabled={isScanning}
+          >
             <span
               className="material-symbols-outlined"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               play_arrow
             </span>
-            Mulai
+            {isScanning ? "Memindai..." : "Mulai"}
           </button>
         </div>
       </main>

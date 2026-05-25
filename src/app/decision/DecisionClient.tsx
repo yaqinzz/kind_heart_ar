@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
@@ -11,6 +12,45 @@ export default function DecisionClient() {
   const searchParams = useSearchParams();
   const videoCode = searchParams.get("video") ?? "";
   const videoSrc = VIDEO_BY_CODE[videoCode] ?? null;
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [needsInteraction, setNeedsInteraction] = useState(false);
+
+  useEffect(() => {
+    if (!videoSrc) {
+      return;
+    }
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+
+    // Try to autoplay with sound; browsers may block it without user gesture.
+    video.muted = false;
+    const tryPlay = async () => {
+      try {
+        await video.play();
+        setNeedsInteraction(false);
+      } catch (err) {
+        setNeedsInteraction(true);
+      }
+    };
+
+    tryPlay();
+  }, [videoSrc]);
+
+  const handleEnableAudio = async () => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+    video.muted = false;
+    try {
+      await video.play();
+      setNeedsInteraction(false);
+    } catch (err) {
+      setNeedsInteraction(true);
+    }
+  };
 
   return (
     <>
@@ -49,15 +89,26 @@ export default function DecisionClient() {
             {/* Soft Glow behind mascot */}
             <div className="absolute inset-0 bg-primary-fixed-dim/30 blur-3xl rounded-full scale-125"></div>
             {videoSrc ? (
-              <video
-                className="w-full h-full object-contain relative z-10 drop-shadow-2xl"
-                src={videoSrc}
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-              />
+              <div className="relative w-full h-full">
+                <video
+                  ref={videoRef}
+                  className="w-full h-full object-contain relative z-10 drop-shadow-2xl"
+                  src={videoSrc}
+                  autoPlay
+                  loop
+                  playsInline
+                  preload="metadata"
+                />
+                {needsInteraction ? (
+                  <button
+                    className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 text-white text-body-lg font-body-lg rounded-full"
+                    type="button"
+                    onClick={handleEnableAudio}
+                  >
+                    Ketuk untuk menyalakan suara
+                  </button>
+                ) : null}
+              </div>
             ) : (
               <img
                 alt="Thinking Friend"

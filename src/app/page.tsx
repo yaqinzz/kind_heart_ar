@@ -149,8 +149,12 @@ export default function Home() {
       {/* Top App Bar */}
       <header className="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-xl flex justify-between items-center px-margin-mobile h-touch-target-min shadow-sm">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden">
-            {/* Mascot Image Removed */}
+          <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden border-2 border-white shadow-sm">
+            <img
+              alt="Sahabat Mascot"
+              className="w-full h-full object-cover"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsIt4_9AqSfP6lHv1XhyCsnYSmH-LM0Wafn3cBjt05RD7gA9WCgbMcCgY6oJdr6VXV6nkkNT-iRhhgeQm3sFKFQmYQ6LTnrfxZtMjDAWPfKv2dIjF8fEpdTHYBW9-BbxVsweh8_i15cZLdggm0-47cysJqyp5vLcwYIEBJgdEd-DFs5HldUYPFL4eT96-DA8WISycwCSTR4jftuy7RL8SMeoIUPdqblrjssl0Jj4jqb62DxXxjgLBhz8Xa20mt-zu54wMC8U5ZFWUI"
+            />
           </div>
           <h1 className="font-headline-lg-mobile text-headline-lg-mobile text-primary leading-none">
             Sahabat AR

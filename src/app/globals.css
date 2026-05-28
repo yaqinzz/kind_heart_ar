@@ -140,4 +140,19 @@
     border-style: solid;
     border-color: white transparent transparent;
   }
+  .confetti-shape {
+    position: absolute;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .chunky-shadow {
+    box-shadow: 0 4px 0 0 #004883;
+  }
+  .chunky-shadow:active {
+    box-shadow: 0 0 0 0 #004883;
+    transform: translateY(4px);
+  }
+  .bg-pastel-celebration {
+    background: linear-gradient(180deg, #eef4ff 0%, #d4e3ff 100%);
+  }
 }

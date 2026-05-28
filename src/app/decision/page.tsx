@@ -1,10 +1,9 @@
-import { Suspense } from "react";
 import DecisionClient from "./DecisionClient";
 
-export default function DecisionPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-surface" />}>
-      <DecisionClient />
-    </Suspense>
-  );
+export default async function DecisionPage(props: {
+  searchParams: Promise<{ video?: string }>;
+}) {
+  const searchParams = await props.searchParams;
+  const video = searchParams.video ?? "";
+  return <DecisionClient video={video} />;
 }

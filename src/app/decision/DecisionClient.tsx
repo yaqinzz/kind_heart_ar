@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 
 const VIDEO_BY_CODE: Record<string, string> = {
   video_1: "/video/video_1.mp4",
@@ -58,10 +57,9 @@ const VIDEO_CONTENT: Record<string, typeof DEFAULT_CONTENT> = {
   },
 };
 
-export default function DecisionClient() {
-  const searchParams = useSearchParams();
+export default function DecisionClient({ video }: { video: string }) {
   const [isHydrated, setIsHydrated] = useState(false);
-  const videoCode = isHydrated ? searchParams.get("video") ?? "" : "";
+  const videoCode = video;
   const videoSrc = isHydrated ? VIDEO_BY_CODE[videoCode] ?? null : null;
   const currentContent = videoCode ? VIDEO_CONTENT[videoCode] ?? DEFAULT_CONTENT : DEFAULT_CONTENT;
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -139,7 +137,7 @@ export default function DecisionClient() {
   };
 
   return (
-    <>
+    <div className="h-screen bg-surface font-body-md text-on-surface flex flex-col overflow-hidden">
       {/* Top App Bar */}
       <header className="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-xl flex justify-between items-center px-margin-mobile h-touch-target-min shadow-sm">
         <div className="flex items-center gap-2">
@@ -160,9 +158,9 @@ export default function DecisionClient() {
       </header>
 
       {/* Main Canvas (AR Context Area) */}
-      <main className="flex-grow pt-24 pb-25 px-margin-mobile flex flex-col items-center justify-center min-h-screen relative overflow-x-hidden overflow-y-auto">
+      <main className="flex-grow pt-24 pb-25 px-margin-mobile flex flex-col items-center relative overflow-y-auto overflow-x-hidden">
         {/* Decision Scene Content */}
-        <div className="w-full max-w-md flex flex-col items-center gap-12 z-10">
+        <div className="w-full max-w-md flex flex-col items-center gap-12 z-10 my-auto">
           {/* Speech Bubble */}
           <div className="relative w-full">
             <div className="speech-bubble bg-white rounded-lg p-8 text-center border-2 border-surface-container-highest">
@@ -273,7 +271,6 @@ export default function DecisionClient() {
           <span className="material-symbols-outlined text-[28px]">emoji_events</span>
         </a>
       </nav>
-
-    </>
+    </div>
   );
 }

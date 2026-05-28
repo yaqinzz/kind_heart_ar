@@ -158,7 +158,7 @@ export default function DecisionClient({ video }: { video: string }) {
       </header>
 
       {/* Main Canvas (AR Context Area) */}
-      <main className="flex-grow pt-24 pb-25 px-margin-mobile flex flex-col items-center relative overflow-y-auto overflow-x-hidden">
+      <main className="flex-grow pt-24 pb-32 px-margin-mobile flex flex-col items-center relative overflow-y-auto overflow-x-hidden">
         {/* Decision Scene Content */}
         <div className="w-full max-w-md flex flex-col items-center gap-12 z-10 my-auto">
           {/* Speech Bubble */}

@@ -4,7 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import jsQR from "jsqr";
 
-const QR_TARGET = "video_1";
+const QR_CODES = new Set([
+  "video_1",
+  "video_2",
+  "video_3",
+  "video_4",
+  "video_5",
+  "video_6",
+  "video_7",
+]);
 const DECISION_ROUTE = "/decision";
 
 export default function Home() {
@@ -102,7 +110,7 @@ export default function Home() {
 
       if (result?.data) {
         const data = result.data.trim();
-        if (data === QR_TARGET) {
+        if (QR_CODES.has(data)) {
           setIsScanning(false);
           stopCamera();
           router.push(`${DECISION_ROUTE}?video=${encodeURIComponent(data)}`);

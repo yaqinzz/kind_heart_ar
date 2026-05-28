@@ -6,6 +6,12 @@ import { useSearchParams } from "next/navigation";
 
 const VIDEO_BY_CODE: Record<string, string> = {
   video_1: "/video/video_1.mp4",
+  video_2: "/video/video_2.mp4",
+  video_3: "/video/video_3.mp4",
+  video_4: "/video/video_4.mp4",
+  video_5: "/video/video_5.mp4",
+  video_6: "/video/video_6.mp4",
+  video_7: "/video/video_7.mp4",
 };
 
 export default function DecisionClient() {
